@@ -1,0 +1,2 @@
+this is the api end point
+So GUY JUST CALL localhost 3000 / api /[folder name inside]
