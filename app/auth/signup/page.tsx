@@ -68,22 +68,41 @@ export default function SignUp() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!validateForm()) return
+    if (!validateForm()) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
-      await signup(formData.name, formData.email, formData.password, formData.role)
-      router.push(formData.role === "farmer" ? "/dashboard" : "/explore")
+      const res = await fetch("/api/user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          type: formData.role,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        router.push(formData.role === "farmer" ? "/dashboard" : "/explore");
+      } else {
+        setErrors({
+          form: data.message || "Failed to create account. Please try again.",
+        });
+      }
     } catch (error) {
-      console.error("Signup error:", error)
-      setErrors({ form: "Failed to create account. Please try again." })
+      console.error("Signup error:", error);
+      setErrors({ form: "Failed to create account. Please try again." });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-lime-50 py-12 px-4 sm:px-6 lg:px-8">

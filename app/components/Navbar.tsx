@@ -71,7 +71,7 @@ export default function Navbar() {
                 href="/dashboard"
                 className={`${pathname.startsWith("/dashboard") ? "font-bold" : "font-medium"} ${isScrolled || pathname !== "/" ? "text-gray-800 hover:text-lime-500" : "text-white hover:text-lime-200"} transition-colors`}
               >
-                Farmer Dashboard
+                Dashboard
               </Link>
             )}
             <Link
@@ -162,7 +162,7 @@ export default function Navbar() {
                   className={`${pathname.startsWith("/dashboard") ? "font-bold text-lime-500" : "font-medium text-gray-800"}`}
                   onClick={closeMenu}
                 >
-                  Farmer Dashboard
+                  Dashboard
                 </Link>
               )}
               <Link href="/cart" className="font-medium text-gray-800 flex items-center" onClick={closeMenu}>
