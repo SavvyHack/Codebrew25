@@ -4,6 +4,7 @@ CREATE DATABASE IF NOT EXISTS farmazon;
 USE farmazon;
 
 CREATE TABLE IF NOT EXISTS users (
+  name VARCHAR(255),
   id INT AUTO_INCREMENT PRIMARY KEY,
   email VARCHAR(255),
   type ENUM('customer', 'farmer'),
