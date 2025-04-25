@@ -157,12 +157,13 @@ export default function ProductDetailPage() {
           <div className="grid md:grid-cols-2 gap-8 p-6">
             {/* Product Images */}
             <div className="space-y-4">
-              <div className="relative h-80 md:h-96 rounded-lg overflow-hidden border">
+              <div className="relative h-81 md:h-97 rounded-lg overflow-hidden border">
                 <Image
-                  src={selectedImage === 0 ? product.image : product.additionalImages[selectedImage - 1]}
+                  src={product.image || "/placeholder.svg"}
                   alt={product.name}
-                  fill
-                  className="object-cover"
+                  width={400}
+                  height={400}
+                  className="w-full h-full object-cover"
                 />
               </div>
               {/* <div className="flex gap-2 overflow-x-auto pb-2">
@@ -195,30 +196,16 @@ export default function ProductDetailPage() {
                 <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
                 <div className="flex items-center gap-4 mb-4">
                   <div className="flex items-center">
-                  <div className="flex">
-                      {[...Array(5)].map((_, i) => {
-                        const rating = product.rating
-
-                        if (i < Math.floor(rating)) {
-                          // full star
-                          return <Star key={i} size={18} className="fill-yellow-400 text-yellow-400" />
-                        } else if (i < rating) {
-                          // half star (use a custom half-filled star or style)
-                          return (
-                            <div key={i} className="relative w-[18px] h-[18px]">
-                              <Star className="text-gray-300 absolute top-0 left-0" size={18} />
-                              <Star
-                                className="text-yellow-400 absolute top-0 left-0 overflow-hidden"
-                                size={18}
-                                style={{ width: "50%", clipPath: "inset(0 50% 0 0)" }}
-                              />
-                            </div>
-                          )
-                        } else {
-                          // empty star
-                          return <Star key={i} size={18} className="text-gray-300" />
-                        }
-                      })}
+                    <div className="flex">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          size={18}
+                          className={
+                            i < Math.floor(product.rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+                          }
+                        />
+                      ))}
                     </div>
                     <span className="ml-2 text-gray-600">
                       {product.rating} ({product.reviews} reviews)

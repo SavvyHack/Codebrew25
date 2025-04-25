@@ -43,10 +43,10 @@ export default function CartPage() {
         {cartItems.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
             <Image
-              src="/placeholder.svg?height=120&width=120"
+              src="/product-pic/empty_cart.png"
               alt="Empty cart"
-              width={120}
-              height={120}
+              width={100}
+              height={100}
               className="mx-auto mb-6"
             />
             <h2 className="text-2xl font-semibold mb-4">Your cart is empty</h2>
