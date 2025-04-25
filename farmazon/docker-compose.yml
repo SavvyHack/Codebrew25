@@ -7,9 +7,14 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: Ttyyuu11..
       MYSQL_ROOT_HOST: "%" 
+      MYSQL_DATABASE: farmazon
     ports:
       - "3307:3306"
     volumes:
-      - ./seed.sql:/docker-entrypoint-initdb.d/seed.sql
+      # - ./seed.sql:/docker-entrypoint-initdb.d/seed.sql
+      # - ./mockData.sql:/docker-entrypoint-initdb.d/mockData.sql
+      - ./01-seed.sql:/docker-entrypoint-initdb.d/01-seed.sql
+      - ./02-mockData.sql:/docker-entrypoint-initdb.d/02-mockData.sql
+
 
 

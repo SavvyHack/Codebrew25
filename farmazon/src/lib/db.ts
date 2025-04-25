@@ -1,7 +1,7 @@
 import mysql from 'mysql2/promise';
 
 export const db = mysql.createPool({
-  host: 'localhost',     // or your Docker container name
+  host: 'localhost',     // we run this on local that we it localhost
   user: 'root',
   password: 'Ttyyuu11..', //this password change accordingly to ur pasword setup when u install mysql
   database: 'farmazon',
