@@ -5,38 +5,39 @@ USE farmazon;
 
 
 
-
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255),
+  type ENUM('customer', 'farmer'),
+  password VARCHAR(255)
+);
+-- this one is the type of user can be customer
 
 CREATE TABLE IF NOT EXISTS customers (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255),
   address VARCHAR(255),
-  email VARCHAR(255),
-  phone VARCHAR(20)
+  phone VARCHAR(20),
+  customer_id_info INT,
+  FOREIGN KEY (customer_id_info) REFERENCES users(id)
 );
 
-CREATE TABLE IF NOT EXISTS farmers_info (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  email VARCHAR(255),
-  password VARCHAR(255),
-  license VARCHAR(255)
-);
+
 
 CREATE TABLE IF NOT EXISTS farmers (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255),
-  type ENUM('personal', 'business'),
   farm_location VARCHAR(255),
   suburb VARCHAR(255),
   contact_info VARCHAR(255),
   farmer_id_info INT,
-  FOREIGN KEY (farmer_id_info) REFERENCES farmers_info(id)
+  FOREIGN KEY (farmer_id_info) REFERENCES users(id)
 );
 
 
 CREATE TABLE IF NOT EXISTS products (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  category VARCHAR(255),
+  category ENUM('fruits', 'dairy', 'fats and oils', 'vegetables', 'condiments', 'beverage', 'sweets'),
   name VARCHAR(255),
   image_link VARCHAR(255),
   description TEXT,
@@ -45,7 +46,6 @@ CREATE TABLE IF NOT EXISTS products (
   stock INT,
   farmer_id INT,
   produce_at DATE,
-  expire_at DATE,
   FOREIGN KEY (farmer_id) REFERENCES farmers(id)
 );
 
