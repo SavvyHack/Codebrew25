@@ -1,12 +1,5 @@
-import Image from "next/image";
-import Navbar from "./component/NavBar";
+import { redirect } from 'next/navigation';
 
-export default function Home() {
-  return (
-    <div className="bg-gray-50">
-         <Navbar />
-     this is home
-     {/* this is the example of Import component */}
-    </div>
-  );
+export default function RootPage() {
+  redirect('/home');
 }
