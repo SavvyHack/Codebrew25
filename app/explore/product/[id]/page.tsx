@@ -165,7 +165,7 @@ export default function ProductDetailPage() {
                   className="object-cover"
                 />
               </div>
-              <div className="flex gap-2 overflow-x-auto pb-2">
+              {/* <div className="flex gap-2 overflow-x-auto pb-2">
                 <button
                   onClick={() => setSelectedImage(0)}
                   className={`relative w-20 h-20 rounded-md overflow-hidden border-2 ${selectedImage === 0 ? "border-lime-500" : "border-transparent"}`}
@@ -186,7 +186,7 @@ export default function ProductDetailPage() {
                     />
                   </button>
                 ))}
-              </div>
+              </div> */}
             </div>
 
             {/* Product Details */}
