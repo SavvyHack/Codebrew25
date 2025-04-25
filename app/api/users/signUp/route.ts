@@ -14,10 +14,10 @@ export async function GET() {
 // POST handler for user sign-up
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, type } = await req.json();
+    const { name, email, password, type } = await req.json();
 
     // Basic validation
-    if (!email || !password || !type) {
+    if (!name || !email || !password || !type) {
       return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
     }
 
@@ -40,8 +40,8 @@ export async function POST(req: NextRequest) {
     // Insert the new user into the database
     // Ensure the table name 'users' and columns 'email', 'password', 'type' match your schema
     const [result] = await db.query(
-      'INSERT INTO users (email, password, type) VALUES (?, ?, ?)',
-      [email, hashedPassword, type]
+      'INSERT INTO users (name, email, password, type) VALUES (?, ?, ?)',
+      [name, email, hashedPassword, type]
     );
 
     // Basic check if insert was successful (depends on DB driver response)
