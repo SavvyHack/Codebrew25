@@ -3,8 +3,6 @@ CREATE DATABASE IF NOT EXISTS farmazon;
 
 USE farmazon;
 
-
-
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   email VARCHAR(255),
@@ -22,8 +20,6 @@ CREATE TABLE IF NOT EXISTS customers (
   FOREIGN KEY (customer_id_info) REFERENCES users(id)
 );
 
-
-
 CREATE TABLE IF NOT EXISTS farmers (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255),
@@ -33,7 +29,6 @@ CREATE TABLE IF NOT EXISTS farmers (
   farmer_id_info INT,
   FOREIGN KEY (farmer_id_info) REFERENCES users(id)
 );
-
 
 CREATE TABLE IF NOT EXISTS products (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -49,7 +44,6 @@ CREATE TABLE IF NOT EXISTS products (
   FOREIGN KEY (farmer_id) REFERENCES farmers(id)
 );
 
-
 CREATE TABLE IF NOT EXISTS orders (
   id INT AUTO_INCREMENT PRIMARY KEY,
   customer_id INT,
@@ -58,7 +52,6 @@ CREATE TABLE IF NOT EXISTS orders (
   status ENUM('pending', 'dispatched', 'delivered', 'canceled'),
   FOREIGN KEY (customer_id) REFERENCES customers(id)
 );
-
 
 
 CREATE TABLE IF NOT EXISTS hub_inventory (
