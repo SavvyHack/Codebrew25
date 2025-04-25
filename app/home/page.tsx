@@ -1,30 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import Navbar from "../component/NavBar";
+import Navbar from "../components/Navbar";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
   return (
     <main className="min-h-screen bg-green-50 text-gray-900 p-4 md:p-8">
-      <div className="flex justify-between items-center w-full px-4 md:px-8 absolute top-4 left-0 right-0">
-        <button
-        onClick={() => router.push("home/about")}
-        className="bg-white border border-green-600 hover:bg-green-100 text-green-700 font-semibold px-4 py-2 rounded-xl shadow">
-        About
-        </button>
-      </div>
-      <div className="absolute top-4 right-4 flex gap-2">
-        <button
-          className="bg-green-600 text-white border border-green-600 hover:bg-green-700 font-semibold px-4 py-2 rounded-xl shadow">
-          Sign In
-        </button>
-        <button
-          className="bg-white border border-green-600 hover:bg-green-100 text-green-700 font-semibold px-4 py-2 rounded-xl shadow">
-          Sign Up
-        </button>
-      </div>
+   
+      <Navbar />
       <section className="max-w-5xl mx-auto text-center py-16">
         <h1 className="text-4xl md:text-6xl font-bold mb-6">Welcome to FARMAZON 🌾</h1>
         <p className="text-lg md:text-xl mb-8">
@@ -63,14 +48,3 @@ export default function Home() {
 }
 
 
-
-/*
-export default function Home() {
-  return (
-    <div className="bg-gray-50">
-      <Navbar />
-      this is home
-    </div>
-  );
-}
-*/
