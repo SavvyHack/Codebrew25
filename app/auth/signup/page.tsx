@@ -54,12 +54,21 @@ export default function SignUp() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
+<<<<<<< HEAD
     e.preventDefault()
     
     if (!validateForm()) return
     
     setIsSubmitting(true)
     
+=======
+    e.preventDefault();
+  
+    if (!validateForm()) return;
+  
+    setIsSubmitting(true);
+  
+>>>>>>> 69813c65b64649525687b921122193f5ec9f53c3
     try {
       const response = await fetch("/api/auth/signup", {
         method: "POST",
@@ -70,6 +79,7 @@ export default function SignUp() {
           name: formData.name,
           email: formData.email,
           password: formData.password,
+<<<<<<< HEAD
           role: formData.role,
         }),
       })
@@ -78,6 +88,23 @@ export default function SignUp() {
       
       if (!response.ok) {
         throw new Error(data.message || "Signup failed")
+=======
+          type: formData.role === "consumer" ? "customer" : "farmer",
+        }),
+      });
+  
+      const responseText = await res.text(); // Get the response as raw text (HTML or plain text)
+      console.log(responseText); // Log the raw response for debugging
+  
+      // Check if the response is OK (status code 200-299)
+      if (res.ok) {
+        // Optional: save user info to localStorage or context
+        router.push(formData.role === "farmer" ? "/dashboard" : "/explore");
+      } else {
+        setErrors({
+          form: responseText || "Failed to create account. Please try again.", // Show raw error message
+        });
+>>>>>>> 69813c65b64649525687b921122193f5ec9f53c3
       }
       
       router.push(formData.role === "farmer" ? "/dashboard" : "/explore")
@@ -86,7 +113,13 @@ export default function SignUp() {
     } finally {
       setIsSubmitting(false)
     }
+<<<<<<< HEAD
   }
+=======
+  };
+  
+  
+>>>>>>> 69813c65b64649525687b921122193f5ec9f53c3
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-lime-50 py-12 px-4 sm:px-6 lg:px-8">

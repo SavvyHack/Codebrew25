@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -29,6 +30,7 @@ export default function CartPage() {
 
   const handleCheckout = () => {
     if (!user) {
+      // I will handle this later
       router.push("/auth/signin?redirect=/checkout")
     } else {
       router.push("/checkout")
@@ -158,3 +160,4 @@ export default function CartPage() {
     </div>
   )
 }
+
