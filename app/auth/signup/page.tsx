@@ -69,11 +69,11 @@ export default function SignUp() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!validateForm()) return;
-
+  
     setIsSubmitting(true);
-
+  
     try {
       const res = await fetch("/api/user", {
         method: "POST",
@@ -81,19 +81,23 @@ export default function SignUp() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          name: formData.name,
           email: formData.email,
           password: formData.password,
-          type: formData.role,
+          type: formData.role === "consumer" ? "customer" : "farmer",
         }),
       });
-
-      const data = await res.json();
-
+  
+      const responseText = await res.text(); // Get the response as raw text (HTML or plain text)
+      console.log(responseText); // Log the raw response for debugging
+  
+      // Check if the response is OK (status code 200-299)
       if (res.ok) {
+        // Optional: save user info to localStorage or context
         router.push(formData.role === "farmer" ? "/dashboard" : "/explore");
       } else {
         setErrors({
-          form: data.message || "Failed to create account. Please try again.",
+          form: responseText || "Failed to create account. Please try again.", // Show raw error message
         });
       }
     } catch (error) {
@@ -103,6 +107,8 @@ export default function SignUp() {
       setIsSubmitting(false);
     }
   };
+  
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-lime-50 py-12 px-4 sm:px-6 lg:px-8">
