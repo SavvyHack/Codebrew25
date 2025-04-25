@@ -55,6 +55,16 @@ CREATE TABLE IF NOT EXISTS orders (
 );
 
 
+CREATE TABLE IF NOT EXISTS order_items (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  order_id INT,
+  product_id INT,
+  quantity INT,
+  FOREIGN KEY (order_id) REFERENCES orders(id),
+  FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+
 CREATE TABLE IF NOT EXISTS hub_inventory (
   id INT AUTO_INCREMENT PRIMARY KEY,
   product_id INT,
@@ -64,14 +74,6 @@ CREATE TABLE IF NOT EXISTS hub_inventory (
   FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
-CREATE TABLE IF NOT EXISTS order_items (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  order_id INT,
-  product_id INT,
-  quantity INT,
-  FOREIGN KEY (order_id) REFERENCES orders(id),
-  FOREIGN KEY (product_id) REFERENCES products(id)
-);
 
 CREATE TABLE IF NOT EXISTS logistics (
   id INT AUTO_INCREMENT PRIMARY KEY,
