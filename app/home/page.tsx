@@ -1,11 +1,16 @@
+"use client";
+
 import Image from "next/image";
 import Navbar from "../component/NavBar";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
   return (
     <main className="min-h-screen bg-green-50 text-gray-900 p-4 md:p-8">
       <div className="flex justify-between items-center w-full px-4 md:px-8 absolute top-4 left-0 right-0">
         <button
+        onClick={() => router.push("home/about")}
         className="bg-white border border-green-600 hover:bg-green-100 text-green-700 font-semibold px-4 py-2 rounded-xl shadow">
         About
         </button>
