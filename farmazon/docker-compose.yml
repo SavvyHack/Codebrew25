@@ -5,7 +5,8 @@ services:
     image: mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: Ttyyuu11..
+      MYSQL_ROOT_PASSWORD: Ttyyuu11.. 
+      # this is my personal 
       MYSQL_ROOT_HOST: "%" 
       MYSQL_DATABASE: farmazon
     ports:

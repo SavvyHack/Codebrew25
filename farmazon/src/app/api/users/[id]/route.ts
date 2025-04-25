@@ -5,7 +5,7 @@ import { db } from '@/lib/db';
 export async function GET(req: NextRequest, context: { params: { id: string } }) {
   try {
     const { id } = context.params;
-    const [rows]: any = await db.query('SELECT * FROM user WHERE id = ?', [id]);
+    const [rows]: any = await db.query('SELECT * FROM users WHERE id = ?', [id]);
     if (rows.length === 0) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
