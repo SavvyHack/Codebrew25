@@ -45,7 +45,7 @@ export default function CartPage() {
         {cartItems.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
             <Image
-              src="/product-pic/empty_cart.png"
+              src="/cart-pic/empty_cart.png"
               alt="Empty cart"
               width={100}
               height={100}

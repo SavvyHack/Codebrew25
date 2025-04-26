@@ -55,8 +55,8 @@ export default function RootLayout({
                   </div>
                   <div>
                     <h3 className="text-lg font-bold mb-4">Contact</h3>
-                    <p>Email: info@farmazon.com.au</p>
-                    <p>Phone: (02) 1234 5678</p>
+                    <p>Email: realemail@farmazon.com</p>
+                    <p>Phone: (69)FARMAZON</p>
                   </div>
                 </div>
                 <div className="mt-8 pt-8 border-t border-lime-400 text-center">
