@@ -6,9 +6,11 @@ import { useCart } from "@/app/context/CartContext"
 import { useAuth } from "@/app/context/AuthContext"
 import { CardElement, useElements, useStripe, Elements } from "@stripe/react-stripe-js"
 import { loadStripe } from "@stripe/stripe-js"
+import axios from 'axios';
 
 // Initialize stripe outside the component for optimization
-const stripePromise = loadStripe(process.env.STRIPE_PUBLIC_KEY || 'fallback-public-key');
+// const stripePromise = loadStripe(process.env.STRIPE_PUBLIC_KEY || 'fallback-public-key');
+const stripePromise = loadStripe("pk_test_51RHyXMRIQQcuyebYC0P1MiVrs6vSR0k2BPwADSYByXuVUs1e2R2fmylh9yQBPcDz6ITwxnsTdoZvLwiiU6RuJ81U00kKRqpZmj");
 
 function CheckoutPageContent() {
   const { cartItems, totalPrice } = useCart()
@@ -35,9 +37,31 @@ function CheckoutPageContent() {
   }
 
   const handleSubmit = async (event: React.FormEvent) => {
-    console.log(process.env.STRIPE_PUBLIC_KEY);
+    console.log(stripePromise);
     event.preventDefault()
     setIsProcessing(true)
+
+    const orderData = {
+      customer_id: null,  // Assuming the user is logged in and you have their `id`
+      delivery_date: new Date().toISOString().split('T')[0], // Set current date as delivery date (or change as needed)
+      status: 'pending', // Default status is pending
+      items: cartItems,  // Or any other way you store the order items
+      totalPrice: totalPrice,
+    };
+
+    try {
+      // Send the order data to the backend API using axios
+      const response = await axios.post('/api/orders', orderData);
+  
+      // Handle the response from the backend
+      if (response.status === 201) {
+        console.log('Order created successfully:', response.data);
+        // You can redirect or show a success message here
+        router.push('/order-success');
+      }
+    } catch (error) {
+      console.error('Error submitting the order:', error);
+    }
 
     try {
       // Create payment method using Stripe's API
