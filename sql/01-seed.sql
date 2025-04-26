@@ -4,11 +4,11 @@ CREATE DATABASE IF NOT EXISTS farmazon;
 USE farmazon;
 
 CREATE TABLE IF NOT EXISTS users (
-  name VARCHAR(255),
   id INT AUTO_INCREMENT PRIMARY KEY,
-  email VARCHAR(255),
-  type ENUM('customer', 'farmer'),
-  password VARCHAR(255)
+  name VARCHAR(255), 
+  email VARCHAR(255) UNIQUE NOT NULL, 
+  type ENUM('customer', 'farmer') NOT NULL, 
+  password VARCHAR(255) NOT NULL 
 );
 -- this one is the type of user can be customer
 
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS farmers (
 
 CREATE TABLE IF NOT EXISTS products (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  category ENUM('fruits', 'dairy', 'fats and oils', 'vegetables', 'condiments', 'beverage', 'sweets'),
+  category VARCHAR(255),
   name VARCHAR(255),
   image_link VARCHAR(255),
   description TEXT,
@@ -41,7 +41,10 @@ CREATE TABLE IF NOT EXISTS products (
   unit VARCHAR(50),
   stock INT,
   farmer_id INT,
-  produce_at DATE,
+  location VARCHAR(255),
+  delivery BOOLEAN,
+  pickup BOOLEAN,
+  expiry_date DATE,
   FOREIGN KEY (farmer_id) REFERENCES farmers(id)
 );
 
@@ -83,7 +86,3 @@ CREATE TABLE IF NOT EXISTS logistics (
   delay_notes TEXT,
   FOREIGN KEY (order_item_id) REFERENCES order_items(id)
 );
-
-
-
-

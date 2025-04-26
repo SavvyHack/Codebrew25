@@ -1,307 +1,264 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
+import axios from 'axios'; 
 import { Star, Truck, MapPin, Calendar, ShoppingCart, ArrowLeft, Plus, Minus } from "lucide-react"
 import { useCart } from "@/app/context/CartContext"
 
-// Sample products data (same as in explore page)
-const productsData = [
-  {
-    id: 1,
-    name: "Organic Tomatoes",
-    description:
-      "Fresh, locally grown organic tomatoes that are perfect for salads, sandwiches, or cooking. These tomatoes are grown without synthetic pesticides or fertilizers, ensuring you get the purest flavor and highest nutritional value. Our farming practices focus on sustainability and environmental stewardship.",
-    price: 5.99,
-    unit: "kg",
-    image: "/product-pic-list/organicTomatoes.png?height=400&width=400",
-    farmer: "Green Valley Farm",
-    farmerImage: "/placeholder.svg?height=100&width=100",
-    location: "Brisbane, QLD",
-    category: "Vegetables",
-    delivery: true,
-    pickup: true,
-    expiry: "2023-12-15",
-    rating: 4.5,
-    reviews: 28,
-    availableQuantity: 50,
-    additionalImages: [
-      "/placeholder.svg?height=100&width=100",
-      "/placeholder.svg?height=100&width=100",
-      "/placeholder.svg?height=100&width=100",
-    ],
-  },
-  {
-    id: 2,
-    name: "Free Range Eggs",
-    description:
-      "Farm fresh free-range eggs from happy hens that roam freely on our pastures. Our hens are fed a natural diet and are never given antibiotics or hormones. These eggs have vibrant, orange yolks and exceptional flavor that you can only get from truly free-range chickens.",
-    price: 7.5,
-    unit: "dozen",
-    image: "/product-pic-list/freeRangeEggs.png?height=400&width=400",
-    farmer: "Happy Hens Farm",
-    farmerImage: "/placeholder.svg?height=100&width=100",
-    location: "Sydney, NSW",
-    category: "Dairy",
-    delivery: true,
-    pickup: false,
-    expiry: "2023-12-10",
-    rating: 4.8,
-    reviews: 42,
-    availableQuantity: 30,
-    additionalImages: [
-      "/placeholder.svg?height=100&width=100",
-      "/placeholder.svg?height=100&width=100",
-      "/placeholder.svg?height=100&width=100",
-    ],
-  },
-  {
-    id: 3,
-    name: "Raw Honey",
-    description:
-      "Pure, unfiltered honey from local beehives. Our bees forage on a diverse range of native Australian flowers, creating a honey with complex flavors and natural health benefits. This honey is never heated or processed, preserving all of its natural enzymes and beneficial properties.",
-    price: 12.99,
-    unit: "jar",
-    image: "/placeholder.svg?height=400&width=400",
-    farmer: "Buzzy Bee Apiary",
-    farmerImage: "/product-pic-list/rawHoney.png?height=100&width=100",
-    location: "Melbourne, VIC",
-    category: "Specialty",
-    delivery: true,
-    pickup: true,
-    expiry: "2024-06-20",
-    rating: 5.0,
-    reviews: 56,
-    availableQuantity: 25,
-    additionalImages: [
-      "/placeholder.svg?height=100&width=100",
-      "/placeholder.svg?height=100&width=100",
-      "/placeholder.svg?height=100&width=100",
-    ],
-  },
-]
+interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number; 
+  unit: string;
+  image_link: string; 
+  farmer_id: number; 
+  location: string;
+  category: string;
+  delivery: boolean;   
+  pickup: boolean;   
+  expiry_date: string; 
+  rating?: number; 
+  reviews?: number; 
+  availableQuantity?: number; 
+}
+
+interface CartItem {
+  id: number;
+  name: string;
+  price: number;
+  image: string;
+  farmer: string; 
+  unit: string;
+}
 
 export default function ProductDetailPage() {
-  const params = useParams()
+  const { id } = useParams()
   const router = useRouter()
   const { addToCart } = useCart()
-
-  const productId = Number(params.id)
-  const product = productsData.find((p) => p.id === productId)
-
+  const [product, setProduct] = useState<Product | null>(null)
   const [quantity, setQuantity] = useState(1)
-  const [selectedImage, setSelectedImage] = useState(0)
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!product) {
-    return (
-      <div className="min-h-screen pt-20 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Product not found</h2>
-          <p className="mb-6">The product you're looking for doesn't exist or has been removed.</p>
-          <Link href="/explore" className="btn-primary">
-            Back to Explore
-          </Link>
-        </div>
-      </div>
-    )
-  }
+  useEffect(() => {
+    if (!id) return; 
 
-  const incrementQuantity = () => {
-    if (quantity < product.availableQuantity) {
-      setQuantity(quantity + 1)
-    }
-  }
+    const fetchProduct = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await axios.get<Product>(`/api/products/${id}`);
+        setProduct(response.data);
+      } catch (err: any) { 
+        console.error("Error fetching product:", err);
+        if (err.response && err.response.status === 404) {
+            setError('Product not found.');
+        } else {
+            setError('Failed to load product details. Please try again later.');
+        }
+        setProduct(null); 
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const decrementQuantity = () => {
-    if (quantity > 1) {
-      setQuantity(quantity - 1)
-    }
+    fetchProduct();
+  }, [id]); 
+
+  const handleQuantityChange = (amount: number) => {
+    setQuantity((prev) => Math.max(1, prev + amount))
   }
 
   const handleAddToCart = () => {
-    addToCart(
-      {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        farmer: product.farmer,
-        unit: product.unit,
-      },
-      quantity,
-    )
+    if (!product) return;
+
+    const cartItemData: CartItem = {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image_link, 
+      farmer: `Farmer ${product.farmer_id}`, 
+      unit: product.unit,
+    };
+
+    addToCart(cartItemData, quantity);
+    console.log(`${product.name} (x${quantity}) added to cart`);
   }
 
-  // Calculate expiry date display
-  const expiryDate = new Date(product.expiry)
-  const formattedExpiry = expiryDate.toLocaleDateString("en-AU", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  })
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-green-500 mx-auto"></div>
+          <p className="mt-4 text-lg text-gray-600">Loading Product...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-screen text-center px-4">
+        <Image
+          src="/placeholder.svg?height=150&width=150" 
+          alt="Error"
+          width={150}
+          height={150}
+          className="mb-4"
+        />
+        <h2 className="text-2xl font-semibold text-red-600 mb-4">Oops! Something went wrong.</h2>
+        <p className="text-lg text-gray-700 mb-6">{error}</p>
+        <button
+          onClick={() => router.back()} 
+          className="bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700 transition-colors duration-300 flex items-center"
+        >
+          <ArrowLeft size={18} className="mr-2" />
+          Go Back
+        </button>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-screen text-center px-4">
+        <Image
+          src="/placeholder.svg?height=150&width=150"
+          alt="Not Found"
+          width={150}
+          height={150}
+          className="mb-4"
+        />
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Product Not Found</h2>
+        <p className="text-lg text-gray-600 mb-6">Sorry, we couldn't find the product you're looking for.</p>
+        <button
+          onClick={() => router.push('/explore')} 
+          className="bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700 transition-colors duration-300 flex items-center"
+        >
+          <ArrowLeft size={18} className="mr-2" />
+          Back to Explore
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
-      <div className="container mx-auto px-4 py-8">
-        {/* Breadcrumb */}
-        <div className="mb-6">
-          <button onClick={() => router.back()} className="flex items-center text-gray-600 hover:text-lime-500">
-            <ArrowLeft size={16} className="mr-2" />
-            Back to results
-          </button>
-        </div>
+    <div className="min-h-screen bg-gray-50 pt-20 pb-12">
+      <div className="container mx-auto px-4">
+        <button
+          onClick={() => router.back()}
+          className="mb-6 text-green-700 hover:text-green-800 flex items-center"
+        >
+          <ArrowLeft size={18} className="mr-1" />
+          Back
+        </button>
 
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="grid md:grid-cols-2 gap-8 p-6">
-            {/* Product Images */}
-            <div className="space-y-4">
-              <div className="relative h-81 md:h-97 rounded-lg overflow-hidden border">
+        <div className="bg-white p-6 md:p-8 rounded-lg shadow-lg">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <div className="relative aspect-square w-full overflow-hidden rounded-lg border border-gray-200 mb-4">
                 <Image
-                  src={product.image || "/placeholder.svg"}
+                  src={product.image_link || '/placeholder.svg'} 
                   alt={product.name}
-                  width={400}
-                  height={400}
-                  className="w-full h-full object-cover"
+                  layout="fill"
+                  objectFit="cover"
+                  className="transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
-              {/* <div className="flex gap-2 overflow-x-auto pb-2">
-                <button
-                  onClick={() => setSelectedImage(0)}
-                  className={`relative w-20 h-20 rounded-md overflow-hidden border-2 ${selectedImage === 0 ? "border-lime-500" : "border-transparent"}`}
-                >
-                  <Image src={product.image || "/placeholder.svg"} alt={product.name} fill className="object-cover" />
-                </button>
-                {product.additionalImages.map((img, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImage(index + 1)}
-                    className={`relative w-20 h-20 rounded-md overflow-hidden border-2 ${selectedImage === index + 1 ? "border-lime-500" : "border-transparent"}`}
-                  >
-                    <Image
-                      src={img || "/placeholder.svg"}
-                      alt={`${product.name} view ${index + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </button>
-                ))}
-              </div> */}
             </div>
 
-            {/* Product Details */}
-            <div className="space-y-6">
+            <div className="flex flex-col justify-between">
               <div>
-                <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="flex items-center">
-                    <div className="flex">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          size={18}
-                          className={
-                            i < Math.floor(product.rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                          }
-                        />
-                      ))}
+                <h1 className="text-3xl font-bold text-gray-900 mb-3">{product.name}</h1>
+                <div className="flex items-center mb-4 space-x-4">
+                  {product.rating && product.reviews && (
+                    <div className="flex items-center">
+                      <Star className="text-yellow-400 mr-1" size={20} fill="currentColor" />
+                      <span className="text-lg font-semibold text-gray-800">{product.rating.toFixed(1)}</span>
+                      <span className="ml-2 text-sm text-gray-500">({product.reviews} reviews)</span>
                     </div>
-                    <span className="ml-2 text-gray-600">
-                      {product.rating} ({product.reviews} reviews)
-                    </span>
+                  )}
+                  <span className="text-gray-300">|</span>
+                  <span className="text-sm font-medium text-green-600 bg-green-100 px-2 py-0.5 rounded">
+                    {product.category}
+                  </span>
+                </div>
+
+                <p className="text-gray-700 mb-5 leading-relaxed">{product.description}</p>
+
+                <div className="mb-6 space-y-3">
+                  <div className="flex items-center text-gray-600">
+                    <MapPin size={18} className="mr-2 text-green-600" />
+                    <span>Location: <span className="font-medium text-gray-800">{product.location}</span></span>
+                  </div>
+                  <div className="flex items-center text-gray-600">
+                    <Calendar size={18} className="mr-2 text-green-600" />
+                    <span>Best Before: <span className="font-medium text-gray-800">{new Date(product.expiry_date).toLocaleDateString()}</span></span>
+                  </div>
+                  <div className="flex items-center text-gray-600">
+                    <Truck size={18} className="mr-2 text-green-600" />
+                    <span>Delivery: <span className={`font-medium ${product.delivery ? 'text-green-700' : 'text-red-600'}`}>{product.delivery ? 'Available' : 'Not Available'}</span></span>
+                    <span className="mx-2 text-gray-300">|</span>
+                    <span>Pickup: <span className={`font-medium ${product.pickup ? 'text-green-700' : 'text-red-600'}`}>{product.pickup ? 'Available' : 'Not Available'}</span></span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 text-gray-600 mb-4">
-                  <MapPin size={16} />
-                  <span>{product.location}</span>
-                </div>
-                <div className="flex items-center gap-4 mb-4">
-                  {product.delivery && (
-                    <div className="flex items-center gap-1 text-gray-600">
-                      <Truck size={16} className="text-lime-500" />
-                      <span>Delivery Available</span>
-                    </div>
-                  )}
-                  {product.pickup && (
-                    <div className="flex items-center gap-1 text-gray-600">
-                      <MapPin size={16} className="text-lime-500" />
-                      <span>Pickup Available</span>
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center gap-1 text-gray-600 mb-6">
-                  <Calendar size={16} />
-                  <span>Best before: {formattedExpiry}</span>
-                </div>
-                <p className="text-gray-700 mb-6">{product.description}</p>
               </div>
 
-              <div className="border-t border-b py-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="text-3xl font-bold">
+              <div className="mt-8 border-t pt-6">
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-3xl font-bold text-green-800">
                     ${product.price.toFixed(2)}
-                    <span className="text-lg font-normal text-gray-500">/{product.unit}</span>
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    {product.availableQuantity} {product.unit}s available
-                  </div>
+                    <span className="text-base text-gray-500 font-normal"> / {product.unit}</span>
+                  </p>
+                  {product.availableQuantity && (
+                    <span className="text-sm text-green-600 font-medium">
+                      {product.availableQuantity} {product.unit} available
+                    </span>
+                  )}
                 </div>
 
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="flex items-center">
+                <div className="flex items-center space-x-4 mb-5">
+                  <label htmlFor="quantity" className="font-medium text-gray-700">Quantity:</label>
+                  <div className="flex items-center border rounded-md">
                     <button
-                      onClick={decrementQuantity}
+                      onClick={() => handleQuantityChange(-1)}
+                      className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-l-md disabled:opacity-50"
                       disabled={quantity <= 1}
-                      className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-l-md bg-gray-50 hover:bg-gray-100 disabled:opacity-50"
+                      aria-label="Decrease quantity"
                     >
                       <Minus size={16} />
                     </button>
-                    <div className="w-14 h-10 flex items-center justify-center border-t border-b border-gray-300 bg-white">
-                      {quantity}
-                    </div>
+                    <input
+                      type="number"
+                      id="quantity"
+                      name="quantity"
+                      value={quantity}
+                      readOnly 
+                      className="w-12 text-center border-l border-r py-1.5 focus:outline-none"
+                      min="1"
+                      aria-label="Current quantity"
+                    />
                     <button
-                      onClick={incrementQuantity}
-                      disabled={quantity >= product.availableQuantity}
-                      className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-r-md bg-gray-50 hover:bg-gray-100 disabled:opacity-50"
+                      onClick={() => handleQuantityChange(1)}
+                      className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-r-md disabled:opacity-50"
+                      aria-label="Increase quantity"
                     >
                       <Plus size={16} />
                     </button>
                   </div>
-                  <button
-                    onClick={handleAddToCart}
-                    className="btn-primary flex-1 flex items-center justify-center gap-2 py-3"
-                  >
-                    <ShoppingCart size={20} />
-                    Add to Cart
-                  </button>
                 </div>
 
-                <div className="text-sm text-gray-600">
-                  Total: <span className="font-semibold">${(product.price * quantity).toFixed(2)}</span>
-                </div>
-              </div>
-
-              {/* Farmer Info */}
-              <div className="pt-4">
-                <h3 className="font-semibold mb-4">About the Farmer</h3>
-                <div className="flex items-center gap-4">
-                  <div className="relative w-16 h-16 rounded-full overflow-hidden">
-                    <Image
-                      src={product.farmerImage || "/placeholder.svg"}
-                      alt={product.farmer}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold">{product.farmer}</h4>
-                    <p className="text-gray-600 text-sm">{product.location}</p>
-                    <Link href="#" className="text-lime-500 hover:text-lime-600 text-sm font-medium">
-                      View Profile
-                    </Link>
-                  </div>
-                </div>
+                <button
+                  onClick={handleAddToCart}
+                  className="w-full bg-green-600 text-white py-3 px-6 rounded-lg text-lg font-semibold hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-300 flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  <ShoppingCart size={20} className="mr-2" />
+                  Add to Cart
+                </button>
               </div>
             </div>
           </div>

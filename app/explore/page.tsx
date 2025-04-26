@@ -1,131 +1,33 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState, useEffect } from "react"
+import axios from "axios"
+import { useCart } from "@/app/context/CartContext"
 import Image from "next/image"
 import Link from "next/link"
 import { Filter, Search, ShoppingCart, MapPin, Truck } from "lucide-react"
-import { useCart } from "@/app/context/CartContext"
 
-// Sample products data
-const productsData = [
-  {
-    id: 1,
-    name: "Organic Tomatoes",
-    description: "Fresh, locally grown organic tomatoes",
-    price: 5.99,
-    unit: "kg",
-    image: "/product-pic-list/organicTomatoes.png?height=200&width=200",
-    farmer: "Green Valley Farm",
-    location: "Brisbane, QLD",
-    category: "Vegetables",
-    delivery: true,
-    pickup: true,
-    expiry: "2023-12-15",
-  },
-  {
-    id: 2,
-    name: "Free Range Eggs",
-    description: "Farm fresh free-range eggs from happy hens",
-    price: 7.5,
-    unit: "dozen",
-    image: "/product-pic-list/freeRangeEggs.png?height=200&width=200",
-    farmer: "Happy Hens Farm",
-    location: "Sydney, NSW",
-    category: "Dairy",
-    delivery: true,
-    pickup: false,
-    expiry: "2023-12-10",
-  },
-  {
-    id: 3,
-    name: "Raw Honey",
-    description: "Pure, unfiltered honey from local beehives",
-    price: 12.99,
-    unit: "jar",
-    image: "/product-pic-list/rawHoney.png?height=200&width=200",
-    farmer: "Buzzy Bee Apiary",
-    location: "Melbourne, VIC",
-    category: "Specialty",
-    delivery: true,
-    pickup: true,
-    expiry: "2024-06-20",
-  },
-  {
-    id: 4,
-    name: "Artisan Sourdough Bread",
-    description: "Handcrafted sourdough bread made with organic flour",
-    price: 6.5,
-    unit: "loaf",
-    image: "/product-pic-list/artisanSourdoughBread.png?height=200&width=200",
-    farmer: "Countryside Bakery",
-    location: "Adelaide, SA",
-    category: "Bakery",
-    delivery: false,
-    pickup: true,
-    expiry: "2023-12-05",
-  },
-  {
-    id: 5,
-    name: "Grass-Fed Beef",
-    description: "Premium grass-fed beef from free-range cattle",
-    price: 22.99,
-    unit: "kg",
-    image: "/product-pic-list/grassFedBeef.png?height=200&width=200",
-    farmer: "Green Pastures Farm",
-    location: "Perth, WA",
-    category: "Meat",
-    delivery: true,
-    pickup: true,
-    expiry: "2023-12-20",
-  },
-  {
-    id: 6,
-    name: "Organic Apples",
-    description: "Sweet and crisp organic apples",
-    price: 4.99,
-    unit: "kg",
-    image: "/product-pic-list/organicApples.png?height=200&width=200",
-    farmer: "Orchard Haven",
-    location: "Hobart, TAS",
-    category: "Fruits",
-    delivery: true,
-    pickup: true,
-    expiry: "2023-12-18",
-  },
-  {
-    id: 7,
-    name: "Fresh Goat Cheese",
-    description: "Creamy, tangy goat cheese made from pasture-raised goats",
-    price: 8.99,
-    unit: "200g",
-    image: "/product-pic-list/freshGoatCheese.png?height=200&width=200",
-    farmer: "Mountain Goat Dairy",
-    location: "Canberra, ACT",
-    category: "Dairy",
-    delivery: true,
-    pickup: false,
-    expiry: "2023-12-12",
-  },
-  {
-    id: 8,
-    name: "Organic Carrots",
-    description: "Sweet, crunchy organic carrots",
-    price: 3.99,
-    unit: "bunch",
-    image: "/product-pic-list/organicCarrots.png?height=200&width=200",
-    farmer: "Green Valley Farm",
-    location: "Brisbane, QLD",
-    category: "Vegetables",
-    delivery: true,
-    pickup: true,
-    expiry: "2023-12-15",
-  },
-]
+// Define an interface for the Product structure based on API response
+interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number; 
+  unit: string;
+  image_link: string; 
+  farmer_id: number; 
+  location: string;
+  category: string;
+  delivery: boolean;
+  pickup: boolean;
+  expiry_date: string; 
+  stock: number; 
+}
 
-// Categories
-const categories = ["All", "Vegetables", "Fruits", "Dairy", "Meat", "Bakery", "Specialty"]
+// Categories (Can eventually be fetched or remain static)
+const categories = ["All", "Vegetables", "Fruits", "Dairy", "Meat", "Bakery", "Specialty"] 
 
-// Locations
+// Locations (Can eventually be fetched or remain static)
 const locations = [
   "All",
   "Brisbane, QLD",
@@ -135,10 +37,14 @@ const locations = [
   "Perth, WA",
   "Hobart, TAS",
   "Canberra, ACT",
-]
+] 
 
 export default function ExplorePage() {
-  const { addToCart } = useCart()
+  const { addToCart } = useCart() 
+
+  const [products, setProducts] = useState<Product[]>([]) 
+  const [isLoading, setIsLoading] = useState(true) 
+  const [error, setError] = useState<string | null>(null) 
 
   const [filters, setFilters] = useState({
     category: "All",
@@ -152,9 +58,45 @@ export default function ExplorePage() {
 
   const [showFilters, setShowFilters] = useState(false)
 
+  // Fetch products from the API on component mount
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setIsLoading(true)
+      setError(null)
+      try {
+        const response = await axios.get<Product[]>('/api/products')
+        setProducts(response.data)
+      } catch (err) {
+        console.error("Failed to fetch products:", err)
+        setError("Failed to load products. Please try again later.")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchProducts()
+  }, []) 
+
   const handleFilterChange = (name: string, value: string | boolean) => {
     setFilters((prev) => ({ ...prev, [name]: value }))
   }
+
+  const handleAddToCart = (product: Product) => {
+    // Create an object matching the CartItem structure expected by addToCart
+    // Assuming CartItem expects 'image' and 'farmer' (as string, adjust if needed)
+    const cartItemData = {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image_link,        // Map image_link -> image
+      farmer: `Farmer ${product.farmer_id}`, // Map farmer_id -> farmer (using a placeholder string)
+                                          // TODO: Fetch actual farmer name if needed later
+      unit: product.unit,
+      // Add any other fields expected by CartItem (Omit<CartItem, "quantity">)
+    };
+    addToCart(cartItemData, 1); // Pass the correctly structured object
+    console.log(`${product.name} added to cart`);
+  };
 
   const resetFilters = () => {
     setFilters({
@@ -168,7 +110,7 @@ export default function ExplorePage() {
     })
   }
 
-  const filteredProducts = productsData.filter((product) => {
+  const filteredProducts = products.filter((product) => {
     // Category filter
     if (filters.category !== "All" && product.category !== filters.category) {
       return false
@@ -204,27 +146,13 @@ export default function ExplorePage() {
       return (
         product.name.toLowerCase().includes(searchLower) ||
         product.description.toLowerCase().includes(searchLower) ||
-        product.farmer.toLowerCase().includes(searchLower) ||
+        product.location.toLowerCase().includes(searchLower) ||
         product.category.toLowerCase().includes(searchLower)
       )
     }
 
     return true
   })
-
-  const handleAddToCart = (product: any) => {
-    addToCart(
-      {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        farmer: product.farmer,
-        unit: product.unit,
-      },
-      1,
-    )
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
@@ -359,49 +287,91 @@ export default function ExplorePage() {
             </div>
 
             {/* Products Grid */}
-            {filteredProducts.length > 0 ? (
+            {isLoading ? (
+              <div className="text-center py-12 bg-white rounded-lg shadow">
+                <Image
+                  src="/placeholder.svg?height=120&width=120"
+                  alt="Loading"
+                  width={120}
+                  height={120}
+                  className="mx-auto mb-4"
+                />
+                <h3 className="text-xl font-semibold mb-2">Loading products...</h3>
+              </div>
+            ) : error ? (
+              <div className="text-center py-12 bg-white rounded-lg shadow">
+                <Image
+                  src="/placeholder.svg?height=120&width=120"
+                  alt="Error"
+                  width={120}
+                  height={120}
+                  className="mx-auto mb-4"
+                />
+                <h3 className="text-xl font-semibold mb-2">{error}</h3>
+              </div>
+            ) : filteredProducts.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredProducts.map((product) => (
                   <div key={product.id} className="card group">
-                    <div className="relative overflow-hidden">
-                      <Image
-                        src={product.image || "/placeholder.svg"}
-                        alt={product.name}
-                        width={300}
-                        height={200}
-                        className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
-                      <button
-                        className="absolute bottom-4 right-4 bg-lime-500 hover:bg-lime-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                        onClick={() => handleAddToCart(product)}
-                        aria-label="Add to cart"
-                      >
-                        <ShoppingCart size={20} />
-                      </button>
-                    </div>
-                    <div className="p-4">
-                      <Link href={`/explore/product/${product.id}`}>
-                        <h3 className="font-semibold text-lg mb-1 hover:text-lime-500 transition-colors">
+                    <Link href={`explore/product/${product.id}`}>
+                      <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-gray-200">
+                        <Image
+                          src={product.image_link || "/placeholder.svg"} 
+                          alt={product.name}
+                          layout="fill"
+                          objectFit="cover"
+                          className="group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute bottom-2 left-2 bg-white/80 px-2 py-1 rounded text-xs font-semibold">
+                          {product.category}
+                        </div>
+                        {(product.delivery || product.pickup) && (
+                          <div className="absolute top-2 right-2 flex space-x-1">
+                            {product.delivery && (
+                              <Truck
+                                size={16}
+                                className="text-white bg-green-600 p-0.5 rounded-full"
+                              />
+                            )}
+                            {product.pickup && (
+                              <MapPin
+                                size={16}
+                                className="text-white bg-blue-600 p-0.5 rounded-full"
+                              />
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <div className="mt-4">
+                        <h3 className="text-lg font-semibold group-hover:text-green-700 transition-colors duration-300">
                           {product.name}
                         </h3>
-                      </Link>
-                      <p className="text-gray-500 text-sm mb-2">by {product.farmer}</p>
-                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">{product.description}</p>
-                      <div className="flex justify-between items-center">
-                        <p className="font-bold text-lg">
-                          ${product.price.toFixed(2)}
-                          <span className="text-sm font-normal text-gray-500">/{product.unit}</span>
+                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                          {product.description}
                         </p>
-                        <div className="flex items-center gap-2">
-                          {product.delivery && <Truck size={16} className="text-lime-500" aria-label="Delivery Available" />}
-                          {product.pickup && <MapPin size={16} className="text-lime-500" aria-label="Pickup Available" />}
+                        {/* Farmer name would require fetching/joining data, showing location for now */}
+                        <p className="text-sm text-gray-500 mt-1">
+                          <MapPin size={14} className="inline mr-1" />
+                          {product.location}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          Expires: {new Date(product.expiry_date).toLocaleDateString()} 
+                        </p>
+                        <div className="flex justify-between items-center mt-2">
+                          <p className="text-xl font-bold text-green-800">
+                            ${product.price.toFixed(2)}
+                          </p>
+                          <span className="text-sm text-gray-500">/ {product.unit}</span>
                         </div>
                       </div>
-                      <p className="text-xs text-gray-500 mt-2">
-                        <MapPin size={12} className="inline mr-1" /> {product.location}
-                      </p>
-                    </div>
+                    </Link>
+                    <button
+                      onClick={() => handleAddToCart(product)}
+                      className="mt-4 w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-300 flex items-center justify-center"
+                    >
+                      <ShoppingCart size={18} className="mr-2" />
+                      Add to Cart
+                    </button>
                   </div>
                 ))}
               </div>

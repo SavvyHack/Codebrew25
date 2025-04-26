@@ -1,18 +1,19 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import axios from 'axios';
 
 interface User {
-  id: string
-  name: string
-  email: string
-  role: "farmer" | "consumer"
+  id: number;
+  name: string | null;
+  email: string;
+  type: "customer" | "farmer";
 }
 
 interface AuthContextType {
   user: User | null
   login: (email: string, password: string) => Promise<void>
-  signup: (name: string, email: string, password: string, role: "farmer" | "consumer") => Promise<void>
+  signup: (name: string, email: string, password: string, type: "customer" | "farmer") => Promise<void>
   logout: () => void
   loading: boolean
 }
@@ -24,7 +25,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Check if user is logged in from localStorage
     const storedUser = localStorage.getItem("farmazon_user")
     if (storedUser) {
       setUser(JSON.parse(storedUser))
@@ -35,41 +35,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     setLoading(true)
     try {
-      // This would be an API call in a real app
-      // Simulating API call with timeout
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const response = await axios.post('/api/auth/signin', { email, password });
 
-      // Mock user for demo
-      const mockUser = {
-        id: "user123",
-        name: email.split("@")[0],
-        email,
-        role: email.includes("farmer") ? "farmer" : ("consumer" as "farmer" | "consumer"),
+      if (response.status === 200 && response.data.user) {
+        const userData: User = response.data.user;
+        setUser(userData);
+        localStorage.setItem("farmazon_user", JSON.stringify(userData));
+      } else {
+        throw new Error(response.data.message || 'Login failed: Invalid response from server');
       }
-
-      setUser(mockUser)
-      localStorage.setItem("farmazon_user", JSON.stringify(mockUser))
-    } catch (error) {
-      console.error("Login failed:", error)
-      throw error
+    } catch (error: any) {
+      console.error("Login failed:", error);
+      const errorMessage = error.response?.data?.message || error.message || 'Login failed. Please try again.';
+      throw new Error(errorMessage); 
     } finally {
       setLoading(false)
     }
   }
 
-  const signup = async (name: string, email: string, password: string, role: "farmer" | "consumer") => {
+  const signup = async (name: string, email: string, password: string, type: "customer" | "farmer") => {
     setLoading(true)
     try {
-      // This would be an API call in a real app
-      // Simulating API call with timeout
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      // Mock user for demo
       const mockUser = {
-        id: "user" + Math.floor(Math.random() * 1000),
+        id: Math.floor(Math.random() * 1000),
         name,
         email,
-        role,
+        type,
       }
 
       setUser(mockUser)
