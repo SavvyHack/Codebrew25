@@ -28,6 +28,7 @@ export default function SignIn() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError(''); // Clear previous errors
 
     if (!formData.email || !formData.password) {
       setError("Please enter both email and password")
@@ -39,19 +40,20 @@ export default function SignIn() {
     try {
       await login(formData.email, formData.password)
 
-      // Redirect based on role (would come from the user object in a real app)
-      if (formData.email.includes("farmer")) {
-        router.push("/dashboard")
-      } else {
-        router.push("/explore")
-      }
-    } catch (error) {
-      console.error("Login error:", error)
-      setError("Invalid email or password")
+      // Login successful - AuthContext handles setting user state
+      // Redirect happens within AuthProvider or here based on user data from context
+      // router.push('/'); // Or dashboard, etc. - You might want to access the user from useAuth() here to decide
+      console.log("Login successful, redirecting..."); // Placeholder
+      router.push('/'); // Simple redirect for now
+
+    } catch (error: any) {
+      // Set the error state with the message from the thrown error
+      setError(error.message || "An unexpected error occurred during login.");
     } finally {
-      setIsSubmitting(false)
-    }
-  }
+      // Ensure the submitting state is reset
+      setIsSubmitting(false);
+     }
+   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-lime-50 py-12 px-4 sm:px-6 lg:px-8">

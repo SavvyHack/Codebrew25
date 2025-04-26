@@ -64,7 +64,7 @@ export default function Navbar() {
               href="/explore"
               className={`${pathname.startsWith("/explore") ? "font-bold" : "font-medium"} ${isScrolled || pathname !== "/" ? "text-gray-800 hover:text-lime-500" : "text-white hover:text-lime-200"} transition-colors`}
             >
-              Explore
+              Explore product
             </Link>
             {user?.role === "farmer" && (
               <Link
@@ -93,7 +93,7 @@ export default function Navbar() {
                   <User size={20} />
                   <span className="font-medium">{user.name}</span>
                 </button>
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block">
+                <div className="absolute right-0 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block">
                   <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-lime-50">
                     Profile
                   </Link>
