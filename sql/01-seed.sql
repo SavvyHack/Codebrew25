@@ -4,11 +4,11 @@ CREATE DATABASE IF NOT EXISTS farmazon;
 USE farmazon;
 
 CREATE TABLE IF NOT EXISTS users (
-  name VARCHAR(255),
   id INT AUTO_INCREMENT PRIMARY KEY,
-  email VARCHAR(255),
-  type ENUM('customer', 'farmer'),
-  password VARCHAR(255)
+  name VARCHAR(255), 
+  email VARCHAR(255) UNIQUE NOT NULL, 
+  type ENUM('customer', 'farmer') NOT NULL, 
+  password VARCHAR(255) NOT NULL 
 );
 -- this one is the type of user can be customer
 
